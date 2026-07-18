@@ -1,0 +1,681 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AquaGrow 365 - Calibrator Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ============================================================== -->
+  <!-- TOP BAR                                                       -->
+  <!-- ============================================================== -->
+  <header class="topbar">
+    <button class="brand" id="brand-home" type="button" aria-label="Open AquaGrow 365 dashboard">
+      <div class="brand-mark has-logo" aria-hidden="true">
+        <img src="assets/logo.png" alt="" />
+      </div>
+      <h1><span>Aqua<span class="brand-aqua">Grow</span> <span class="brand-lime">365</span></span><span class="tag">Calibrator Dashboard</span></h1>
+    </button>
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-controls="tabs" aria-expanded="false" aria-label="Open navigation">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="tabs" id="tabs" aria-label="Dashboard sections">
+      <button class="tab active" data-tab="home"><svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 11 12 4l9 7M5 10v10h14V10M9 20v-6h6v6"/></svg>Connection</button>
+      <button class="tab" data-tab="instructions"><svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg>Instructions</button>
+      <button class="tab" data-tab="sensors"><svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="18" r="2"/><path d="m11 7-5 9m7-9 5 9M7 18h10"/></svg>Sensors</button>
+      <button class="tab" data-tab="relay16"><svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16v10H4zM8 7V4m4 3V4m4 3V4M8 17v3m4-3v3m4-3v3M8 11h2v2H8zm6 0h2v2h-2z"/></svg>Relay 16</button>
+      <button class="tab" data-tab="relay84"><svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h3v3H8zm5 4h3v3h-3M4 12H2m20 0h-2"/></svg>Relay 8+4</button>
+      <button class="tab" data-tab="extras"><svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M10 12h10M4 12h2m-2 6h10m4 0h2"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="18" r="2"/></svg>Extras</button>
+      <button class="tab" data-tab="logs"><svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M7 6h13M7 12h13M7 18h13"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>Logs</button>
+    </nav>
+    <div class="system-status is-offline" id="system-status" aria-live="polite">
+      <span class="status-dot" aria-hidden="true"></span>
+      <div class="status-text">
+        <strong>System Offline</strong>
+        <small>Waiting for ESP32 boards</small>
+      </div>
+      <span class="pulse-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg>
+      </span>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============================================================== -->
+    <!-- HOME / DASHBOARD                                              -->
+    <!-- ============================================================== -->
+    <section class="panel active" id="tab-home">
+      <div class="dashboard">
+        <!-- ----- Connection Status (LEFT) ----------------------------- -->
+        <div class="dash-card dash-conn">
+          <div class="card-heading">
+          <h2>
+            <span class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0 1 14 0"/><path d="M8.5 12a3.5 3.5 0 0 1 7 0"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg>
+            </span>
+            Connection Status
+          </h2>
+          <span class="auto-badge">Auto-connect: <strong id="dash-auto-label">ON</strong></span>
+          </div>
+          <p class="card-sub">Four ESP32 boards in the AquaGrow 365 rig.</p>
+
+          <div class="conn-actions">
+            <button id="dash-scan" class="primary">Scan Again</button>
+            <button id="dash-connect-all" class="primary">Connect All</button>
+            <button id="dash-disconnect-all" class="danger">Disconnect All</button>
+            <button id="dash-manage-connection">Manage IPs</button>
+            <label class="inline-check">
+              <span class="switch"><input type="checkbox" id="dash-auto-connect" checked /><span class="slider"></span></span>
+              <span>Auto-connect</span>
+            </label>
+          </div>
+
+          <div class="device-list" id="dash-device-list">
+            <div class="device-card" data-board="esp1">
+              <div class="dev-ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="2"/><path d="M9 9h6v6H9z"/><path d="M3 9h2"/><path d="M3 12h2"/><path d="M3 15h2"/><path d="M19 9h2"/><path d="M19 12h2"/><path d="M19 15h2"/></svg>
+              </div>
+              <div class="dev-meta">
+                <span class="dev-name">ESP32 #1</span>
+                <span class="dev-sub">Sensors</span>
+                <span class="dev-ip" id="dash-ip-esp1">--</span>
+              </div>
+              <div class="dev-status"><span class="dot"></span><span class="lbl">unknown</span></div>
+            </div>
+            <div class="device-card" data-board="esp2">
+              <div class="dev-ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h2M11 10h2M15 10h2M7 14h2M11 14h2M15 14h2"/></svg>
+              </div>
+              <div class="dev-meta">
+                <span class="dev-name">ESP32 #2</span>
+                <span class="dev-sub">16-Channel Relay</span>
+                <span class="dev-ip" id="dash-ip-esp2">--</span>
+              </div>
+              <div class="dev-status"><span class="dot"></span><span class="lbl">unknown</span></div>
+            </div>
+            <div class="device-card" data-board="esp3">
+              <div class="dev-ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h2M11 10h2M15 10h2M7 14h2M11 14h2M15 14h2"/></svg>
+              </div>
+              <div class="dev-meta">
+                <span class="dev-name">ESP32 #3</span>
+                <span class="dev-sub">8 + 4 Channel Relay</span>
+                <span class="dev-ip" id="dash-ip-esp3">--</span>
+              </div>
+              <div class="dev-status"><span class="dot"></span><span class="lbl">unknown</span></div>
+            </div>
+            <div class="device-card" data-board="esp4">
+              <div class="dev-ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9h.01M15 9h.01M9 15c1 1 4 1 5 0"/></svg>
+              </div>
+              <div class="dev-meta">
+                <span class="dev-name">ESP32 #4</span>
+                <span class="dev-sub">Extras (Servo / Buzzer / Stepper)</span>
+                <span class="dev-ip" id="dash-ip-esp4">--</span>
+              </div>
+              <div class="dev-status"><span class="dot"></span><span class="lbl">unknown</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ----- Central 3D Hero (CENTER) --------------------------- -->
+        <div class="dash-card dash-hero" id="system-overview">
+          <img class="water-splash" src="assets/water-splash.png" alt="" />
+          <div class="hero-head">
+            <h2>AquaGrow 365 System</h2>
+            <p class="hero-sub">Smart control and calibration hub for your aquaponics ecosystem.</p>
+          </div>
+          <div class="board-label board-label-2">
+            <strong>ESP32 #2</strong>
+            <span>16 Relay Board</span>
+          </div>
+          <div class="hero-illustration" id="hero-illustration">
+            <img src="assets/esp32-system-3d-transparent.png" alt="3D illustration of the four ESP32 boards around a glowing aquaponics hub" />
+            <div class="board-label board-label-1">
+              <strong>ESP32 #1</strong>
+              <span>Sensors Board</span>
+            </div>
+            <div class="board-label board-label-3">
+              <strong>ESP32 #3</strong>
+              <span>8+4 Relay Board</span>
+            </div>
+            <div class="board-label board-label-4">
+              <strong>ESP32 #4</strong>
+              <span>Extras Board</span>
+            </div>
+          </div>
+          <div class="hero-stats">
+            <div class="stat stat-boards">
+              <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 9h6v6H9M9 2v4m6-4v4M9 18v4m6-4v4M2 9h4m-4 6h4m12-6h4m-4 6h4"/></svg></span>
+              <div class="stat-copy"><div class="v" id="stat-boards">0</div><div class="l"><strong>Boards Online</strong><span id="stat-boards-note">Awaiting boards</span></div></div>
+            </div>
+            <div class="stat stat-relays">
+              <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m13 2-8 12h7l-1 8 8-12h-7l1-8Z"/></svg></span>
+              <div class="stat-copy"><div class="v" id="stat-relays">28</div><div class="l"><strong>Relays Total</strong><span>Active channels</span></div></div>
+            </div>
+            <div class="stat stat-sensors">
+              <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3s6 6.2 6 11a6 6 0 1 1-12 0c0-4.8 6-11 6-11Z"/></svg></span>
+              <div class="stat-copy"><div class="v" id="stat-sensors">0</div><div class="l"><strong>Sensors</strong><span id="stat-sensors-note">Awaiting data</span></div></div>
+            </div>
+            <div class="stat stat-features">
+              <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M4.9 4.9 7 7m10 10 2.1 2.1M2 12h3m14 0h3M4.9 19.1 7 17m10-10 2.1-2.1"/></svg></span>
+              <div class="stat-copy"><div class="v" id="stat-features">5</div><div class="l"><strong>Automation</strong><span>Active features</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ----- Sensor Preview (RIGHT) ----------------------------- -->
+        <div class="dash-card dash-sensors">
+          <div class="card-heading sensor-heading">
+          <h2>
+            <span class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l3-7 4 14 3-7h5"/></svg>
+            </span>
+            Sensor Preview <small>(ESP32 #1)</small>
+          </h2>
+          <span class="last-updated" id="dash-sensors-updated">No live data</span>
+          </div>
+          <p class="card-sub">Real-time readings from ESP32 #1.</p>
+          <div class="sensor-list" id="dash-sensor-list">
+            <div class="sensor-card" data-sensor="ph">
+              <div class="icn" aria-hidden="true">pH</div>
+              <div class="meta">
+                <span class="name">pH</span>
+                <span class="row2"><span class="dot"></span><span class="status">No live data</span></span>
+              </div>
+              <div class="reading"><div><span class="value">--</span> <span class="unit">pH</span></div><svg class="sparkline" viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18 L100 18"></path></svg></div>
+            </div>
+            <div class="sensor-card" data-sensor="tds">
+              <div class="icn" aria-hidden="true">TDS</div>
+              <div class="meta">
+                <span class="name">TDS</span>
+                <span class="row2"><span class="dot"></span><span class="status">No live data</span></span>
+              </div>
+              <div class="reading"><div><span class="value">--</span> <span class="unit">ppm</span></div><svg class="sparkline" viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18 L100 18"></path></svg></div>
+            </div>
+            <div class="sensor-card" data-sensor="temp">
+              <div class="icn" aria-hidden="true">°C</div>
+              <div class="meta">
+                <span class="name">Temperature</span>
+                <span class="row2"><span class="dot"></span><span class="status">No live data</span></span>
+              </div>
+              <div class="reading"><div><span class="value">--</span> <span class="unit">°C</span></div><svg class="sparkline" viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18 L100 18"></path></svg></div>
+            </div>
+            <div class="sensor-card" data-sensor="do">
+              <div class="icn" aria-hidden="true">O₂</div>
+              <div class="meta">
+                <span class="name">Dissolved Oxygen</span>
+                <span class="row2"><span class="dot"></span><span class="status">No live data</span></span>
+              </div>
+              <div class="reading"><div><span class="value">--</span> <span class="unit">mg/L</span></div><svg class="sparkline" viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18 L100 18"></path></svg></div>
+            </div>
+            <div class="sensor-card" data-sensor="level">
+              <div class="icn" aria-hidden="true">US</div>
+              <div class="meta">
+                <span class="name">Water Level</span>
+                <span class="row2"><span class="dot"></span><span class="status">No live data</span></span>
+              </div>
+              <div class="reading"><div><span class="value">--</span> <span class="unit">cm</span></div><svg class="sparkline" viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18 L100 18"></path></svg></div>
+            </div>
+            <div class="sensor-card" data-sensor="ammonia">
+              <div class="icn" aria-hidden="true">NH₃</div>
+              <div class="meta">
+                <span class="name">Ammonia (NH₃)</span>
+                <span class="row2"><span class="dot"></span><span class="status">No live data</span></span>
+              </div>
+              <div class="reading"><div><span class="value">--</span> <span class="unit">ppm</span></div><svg class="sparkline" viewBox="0 0 100 26" preserveAspectRatio="none" aria-hidden="true"><path d="M0 18 L100 18"></path></svg></div>
+            </div>
+          </div>
+          <button class="wide-link" id="dash-sensors-open">View All Sensors <span aria-hidden="true">→</span></button>
+        </div>
+
+        <!-- ----- Relay 16 mini (LEFT, BELOW) ------------------------ -->
+        <div class="dash-card dash-relay16">
+          <h2>
+            <span class="card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10v4M11 10v4M15 10v4M19 10v4"/></svg>
+            </span>
+            Relay 16 Overview
+          </h2>
+          <p class="card-sub">ESP32 #2 · Live channel state and quick controls.</p>
+          <div class="relay16-mini" id="dash-relay16-mini"></div>
+          <div class="relay16-actions">
+            <button id="dash-r16-all-off" class="danger">All OFF</button>
+            <button id="dash-r16-test-seq">Sequential Test</button>
+            <button id="dash-r16-all-on" class="confirm">All ON (confirm)</button>
+            <button id="dash-r16-emergency" class="emergency">EMERGENCY</button>
+            <button id="dash-r16-open" class="primary">Open full panel</button>
+          </div>
+        </div>
+
+        <!-- ----- Relay 8 + 4 quick controls ------------------------ -->
+        <div class="dash-card dash-relay84">
+          <div class="card-heading">
+            <h2><span class="card-icon" aria-hidden="true">⌘</span>Relay 8 + 4 Board</h2>
+            <span class="health-chip">ESP32 #3</span>
+          </div>
+          <p class="card-sub">Two relay modules · 12 independently controlled channels.</p>
+          <h3 class="mini-section-title">8-channel board</h3>
+          <div class="relay84-mini" id="dash-relay84-8"></div>
+          <h3 class="mini-section-title">4-channel board</h3>
+          <div class="relay84-mini four" id="dash-relay84-4"></div>
+          <div class="relay16-actions">
+            <button id="dash-r84-board8-off">8-CH OFF</button>
+            <button id="dash-r84-board4-off">4-CH OFF</button>
+            <button id="dash-r84-all-off" class="danger">All 12 OFF</button>
+            <button id="dash-r84-emergency" class="emergency">EMERGENCY</button>
+            <button id="dash-r84-open" class="primary">Open full panel</button>
+          </div>
+        </div>
+
+        <!-- ----- Extras preview ----------------------------------- -->
+        <div class="dash-card dash-extras">
+          <div class="card-heading">
+            <h2><span class="card-icon" aria-hidden="true">⚙</span>Extras</h2>
+            <span class="health-chip">ESP32 #4</span>
+          </div>
+          <div class="extras-preview">
+            <div class="extras-controls">
+              <h3>Camera Servos</h3>
+              <div class="gauge-grid">
+                <div class="mini-gauge" data-servo="pan"><span>Pan</span><div class="gauge-arc"><i></i><strong id="dash-pan-value">135°</strong></div><input id="dash-pan-angle" type="range" min="0" max="270" value="135" aria-label="Pan angle"><div class="gauge-actions"><button data-servo-action="pan-center">Center</button><button data-servo-action="pan-sweep">Sweep</button></div></div>
+                <div class="mini-gauge" data-servo="tilt"><span>Tilt</span><div class="gauge-arc"><i></i><strong id="dash-tilt-value">135°</strong></div><input id="dash-tilt-angle" type="range" min="0" max="270" value="135" aria-label="Tilt angle"><div class="gauge-actions"><button data-servo-action="tilt-center">Center</button><button data-servo-action="tilt-sweep">Sweep</button></div></div>
+              </div>
+              <div class="quick-control"><span>Buzzer</span><span class="state-chip" id="dash-buzzer-state">OFF</span><button id="dash-buzzer-on">ON</button><button id="dash-buzzer-off">OFF</button><button id="dash-buzzer-pattern">Alert Pattern</button></div>
+              <div class="quick-control"><span>Alert lights</span><button id="dash-red-blink">Red test</button><button id="dash-green-blink">Green test</button></div>
+            </div>
+            <img class="aquaponics-unit" src="assets/aquaponics-unit.png" alt="Compact AquaGrow aquaponics grow unit" loading="lazy">
+          </div>
+          <button class="wide-link" id="dash-extras-open">Open Servo, Light &amp; Stepper Controls <span aria-hidden="true">→</span></button>
+        </div>
+
+        <!-- ----- Activity feed ------------------------------------- -->
+        <div class="dash-activity">
+          <div class="feed">
+            <div class="card-heading">
+            <h2>
+              <span class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+              </span>
+              Activity
+            </h2>
+            <div class="live-session"><span id="kpi-online">0/4</span> boards · <span id="kpi-relays-on">0</span> relays on · <span id="kpi-sensor-count">0</span> sensors · <span id="kpi-uptime">0m 0s</span></div>
+            </div>
+            <ul class="feed-list" id="dash-feed">
+              <li class="feed-empty">Waiting for events...</li>
+            </ul>
+            <div class="row" style="margin-top:.5rem;">
+              <button id="dash-feed-clear">Clear</button>
+              <button id="dash-feed-open">View All Logs</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- CONNECTION PANEL                                               -->
+    <!-- ============================================================== -->
+    <section class="panel" id="tab-connect">
+      <div class="page-heading">
+        <div><span class="eyebrow">Network configuration</span><h2>Connection Settings</h2></div>
+        <button id="connection-back" class="primary">Back to dashboard</button>
+      </div>
+      <p class="muted">
+        Use each board's unique hostname (recommended) or its unique DHCP
+        address. Never assign the same address to two boards. The dashboard
+        connects via WebSocket and falls back to HTTP REST.
+      </p>
+      <div class="grid-2">
+        <label>ESP32 #1 (sensors)
+          <input type="text" id="ip-esp1" placeholder="calibrator-esp32-1.local" />
+        </label>
+        <label>ESP32 #2 (16 relay)
+          <input type="text" id="ip-esp2" placeholder="calibrator-esp32-2.local" />
+        </label>
+        <label>ESP32 #3 (8+4 relay)
+          <input type="text" id="ip-esp3" placeholder="calibrator-esp32-3.local" />
+        </label>
+        <label>ESP32 #4 (extras)
+          <input type="text" id="ip-esp4" placeholder="calibrator-esp32-4.local" />
+        </label>
+      </div>
+      <div class="row">
+        <button id="btn-save-ips" class="primary">Save Addresses</button>
+        <button id="btn-connect-all">Connect All</button>
+        <button id="btn-disconnect-all" class="danger">Disconnect All</button>
+      </div>
+            <div class="row">
+              <label class="inline-check"><input type="checkbox" id="auto-connect" checked> Auto-connect on page load</label>
+            </div>
+      <div id="conn-status" class="conn-grid">
+        <div class="conn-card" data-board="esp1"><div><h3>ESP32 #1</h3><p>Sensors</p><small></small></div><span class="badge unknown">unknown</span><button class="board-connect" data-connect-board="esp1">Connect</button><button class="board-disconnect" data-disconnect-board="esp1">Disconnect</button></div>
+        <div class="conn-card" data-board="esp2"><div><h3>ESP32 #2</h3><p>16-channel relay</p><small></small></div><span class="badge unknown">unknown</span><button class="board-connect" data-connect-board="esp2">Connect</button><button class="board-disconnect" data-disconnect-board="esp2">Disconnect</button></div>
+        <div class="conn-card" data-board="esp3"><div><h3>ESP32 #3</h3><p>8 + 4 relay boards</p><small></small></div><span class="badge unknown">unknown</span><button class="board-connect" data-connect-board="esp3">Connect</button><button class="board-disconnect" data-disconnect-board="esp3">Disconnect</button></div>
+        <div class="conn-card" data-board="esp4"><div><h3>ESP32 #4</h3><p>Servos, alerts &amp; stepper</p><small></small></div><span class="badge unknown">unknown</span><button class="board-connect" data-connect-board="esp4">Connect</button><button class="board-disconnect" data-disconnect-board="esp4">Disconnect</button></div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- INSTRUCTIONS PANEL                                             -->
+    <!-- ============================================================== -->
+    <section class="panel" id="tab-instructions">
+      <div class="page-heading">
+        <div><span class="eyebrow">Guided setup</span><h2>Setup Instructions</h2></div>
+        <div class="setup-progress" aria-live="polite"><span id="setup-progress-label">0 of 6 complete</span><div><i id="setup-progress-bar"></i></div></div>
+      </div>
+      <p class="muted">Follow this checklist to prepare Arduino IDE, board manager, libraries, firmware upload, and dashboard connection.</p>
+
+      <div class="instructions">
+        <article class="step">
+          <div class="num">1</div>
+          <div>
+            <h3>Install ESP32 Board Manager</h3>
+            <p>In Arduino IDE, open <strong>File &gt; Preferences</strong> and add this to <strong>Additional boards manager URLs</strong>:</p>
+            <p><code>https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json</code></p>
+            <ul>
+              <li>Go to <strong>Tools &gt; Board &gt; Boards Manager</strong>.</li>
+              <li>Search for <strong>esp32</strong> by Espressif and install version <strong>2.0.x+</strong>.</li>
+              <li>Select <strong>Tools &gt; Board &gt; ESP32 Arduino &gt; ESP32 Dev Module</strong>.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="step library-step">
+          <div class="num">2</div>
+          <div>
+            <h3>Install All Libraries</h3>
+            <p>Open <strong>Sketch &gt; Include Library &gt; Manage Libraries</strong>. This list includes required, ESP32-bundled, and optional alternatives.</p>
+            <div class="library-groups">
+              <section class="library-group">
+                <h4>Install from Library Manager <span class="library-count">5</span></h4>
+                <ul class="library-list">
+                  <li><span><code>WebSocketsServer</code><small>Markus Sattler</small></span><span class="library-kind required">Required</span></li>
+                  <li><span><code>ArduinoJson</code><small>Benoit Blanchon · use v6.x</small></span><span class="library-kind required">Required</span></li>
+                  <li><span><code>OneWire</code><small>Paul Stoffregen</small></span><span class="library-kind required">Required</span></li>
+                  <li><span><code>DallasTemperature</code><small>Miles Burton</small></span><span class="library-kind required">Required</span></li>
+                  <li><span><code>ESP32Servo</code><small>Kevin Harrington or bundled fork</small></span><span class="library-kind required">Required</span></li>
+                </ul>
+              </section>
+              <section class="library-group">
+                <h4>Included with the ESP32 core <span class="library-count">5</span></h4>
+                <ul class="library-list">
+                  <li><span><code>WiFi</code><small>Wireless connection</small></span><span class="library-kind bundled">Bundled</span></li>
+                  <li><span><code>ESPmDNS</code><small>Stable .local hostnames</small></span><span class="library-kind bundled">Bundled</span></li>
+                  <li><span><code>WebServer</code><small>HTTP API server</small></span><span class="library-kind bundled">Bundled</span></li>
+                  <li><span><code>Preferences</code><small>Calibration storage</small></span><span class="library-kind bundled">Bundled</span></li>
+                  <li><span><code>esp_task_wdt</code><small>Watchdog timer</small></span><span class="library-kind bundled">Bundled</span></li>
+                </ul>
+              </section>
+              <section class="library-group optional-libraries">
+                <h4>Optional alternatives <span class="library-count">5</span></h4>
+                <ul class="library-list">
+                  <li><span><code>NewPing</code><small>Ultrasonic helper</small></span><span class="library-kind optional">Optional</span></li>
+                  <li><span><code>DFRobot_DO</code><small>Dissolved-oxygen helper</small></span><span class="library-kind optional">Optional</span></li>
+                  <li><span><code>AsyncTCP</code><small>Async network transport</small></span><span class="library-kind optional">Optional</span></li>
+                  <li><span><code>ESPAsyncWebServer</code><small>Async HTTP server</small></span><span class="library-kind optional">Optional</span></li>
+                  <li><span><code>AccelStepper</code><small>Stepper motion helper</small></span><span class="library-kind optional">Optional</span></li>
+                </ul>
+              </section>
+            </div>
+            <p class="note library-note"><strong>Important:</strong> optional libraries are included for completeness; the supplied firmware uses direct implementations instead. See <a href="../libraries.md" target="_blank" rel="noopener"><code>libraries.md</code></a> for usage notes and known-good versions.</p>
+          </div>
+        </article>
+
+        <article class="step">
+          <div class="num">3</div>
+          <div>
+            <h3>Configure Wi-Fi on each ESP32</h3>
+            <p>Open every sketch and edit the <code>WIFI_CONFIG</code> block at the top:</p>
+            <p><code>const WiFiCredentials WIFI_CONFIG = { "your-ssid", "your-password" };</code></p>
+            <ul>
+              <li>Use a 2.4 GHz network (ESP32 does not join 5 GHz).</li>
+              <li>Keep DHCP enabled. The router automatically gives every ESP32 a different IP.</li>
+              <li>Keep the four supplied <code>HOSTNAME</code> values unique; the dashboard uses them even when DHCP addresses change.</li>
+              <li>For maximum reliability, create four DHCP reservations in the router using the MAC addresses printed in Serial Monitor.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="step">
+          <div class="num">4</div>
+          <div>
+            <h3>Upload the Firmware</h3>
+            <p>Open each <code>.ino</code> file from the <code>assets/firmware/</code> folder:</p>
+            <ul>
+              <li><code>esp32_1_sensors.ino</code></li>
+              <li><code>esp32_2_16channel_relay.ino</code></li>
+              <li><code>esp32_3_8channel_4channel_relay.ino</code></li>
+              <li><code>esp32_4_extras.ino</code></li>
+            </ul>
+            <p>Select the matching serial port and click <strong>Upload</strong>. The board's IP is printed on the Serial monitor after boot.</p>
+            <div class="download-grid">
+              <a class="download-link" href="assets/firmware/esp32_1_sensors.ino" download>esp32_1_sensors.ino</a>
+              <a class="download-link" href="assets/firmware/esp32_2_16channel_relay.ino" download>esp32_2_16channel_relay.ino</a>
+              <a class="download-link" href="assets/firmware/esp32_3_8channel_4channel_relay.ino" download>esp32_3_8channel_4channel_relay.ino</a>
+              <a class="download-link" href="assets/firmware/esp32_4_extras.ino" download>esp32_4_extras.ino</a>
+              <a class="download-link download-all" href="assets/firmware/calibrator_firmware_all.zip" download>Download all firmware (zip)</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="step">
+          <div class="num">5</div>
+          <div>
+            <h3>Open the Dashboard</h3>
+            <ul>
+              <li>Open <code>website/index.html</code> directly, or serve it locally:</li>
+              <li><code>cd website &amp;&amp; python -m http.server 8000</code></li>
+              <li>Navigate to <code>http://localhost:8000</code>.</li>
+              <li>The Connection tab starts with the four recommended <code>.local</code> hostnames. Click <strong>Connect All</strong>.</li>
+              <li>If your router does not support mDNS, replace each hostname with that board's unique IP from Serial Monitor.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="step">
+          <div class="num">6</div>
+          <div>
+            <h3>Troubleshooting</h3>
+            <ul>
+              <li>Wrong IP? Check the Serial monitor or your router's DHCP table.</li>
+              <li>WebSocket fails? Serve the dashboard over HTTP, not <code>file://</code>.</li>
+              <li>Relay turns OFF? Use <strong>ON</strong>, not <strong>Pulse</strong>; Pulse is a timed test. Repeated <code>[BOOT]</code> messages indicate a power-related ESP32 reset.</li>
+              <li>Relays click but the load doesn't switch? Provide a separate 5 V supply for the relay coils.</li>
+              <li>Need more detail? See <code>docs/</code> for the calibration guide and API reference.</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- SENSORS PANEL                                                  -->
+    <!-- ============================================================== -->
+    <section class="panel" id="tab-sensors">
+      <div class="page-heading"><div><span class="eyebrow">ESP32 #1</span><h2>Sensor Calibration</h2></div><span class="page-status" id="sensor-page-status">Waiting for live data</span></div>
+      <p class="muted sensor-intro">Live readings, raw inputs, recent trends, and focused calibration controls for all ten sensors.</p>
+
+      <div class="sensor-overview" aria-label="Sensor board summary">
+        <div class="sensor-overview-item"><span>Configured</span><strong id="sensor-configured-count">10</strong><small>sensor inputs</small></div>
+        <div class="sensor-overview-item"><span>Detected</span><strong id="sensor-detected-count">0 / 10</strong><small>reporting now</small></div>
+        <div class="sensor-overview-item"><span>Board health</span><strong id="sensor-health-label">Offline</strong><small id="sensor-health-note">ESP32 #1 not connected</small></div>
+        <div class="sensor-overview-item"><span>Last sample</span><strong id="sensor-last-sample">--:--:--</strong><small>updates every 2 seconds</small></div>
+        <button id="sensor-manage-connection" class="sensor-connect-button" type="button">Manage ESP32 #1</button>
+      </div>
+
+      <div id="sensor-list" class="cards sensor-cal-grid">
+        <div class="empty-state" id="sensor-empty">
+          <span class="empty-state-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 17h3l2-8 4 11 2-7h5"/><path d="M5 5h14"/></svg>
+          </span>
+          <h3>Connect the sensor board to begin</h3>
+          <p>ESP32 #1 will populate all ten live readings, raw inputs, trend charts, and calibration controls here.</p>
+          <button id="sensor-empty-connect" class="primary" type="button">Open Connection Settings</button>
+        </div>
+      </div>
+
+      <div class="chart-wrap sensor-chart-panel" aria-labelledby="sensor-chart-title">
+        <div class="sensor-chart-head">
+          <div><span class="eyebrow">Recent trend</span><h3 id="sensor-chart-title">Sensor history</h3><small id="sensor-chart-range">Waiting for samples</small></div>
+          <label class="sensor-chart-filter">Chart sensor <select id="sensor-chart-series" aria-label="Sensor shown in history chart"></select></label>
+        </div>
+        <canvas id="sensorChart" width="800" height="240"></canvas>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- RELAY 16 PANEL                                                 -->
+    <!-- ============================================================== -->
+    <section class="panel" id="tab-relay16">
+      <div class="page-heading"><div><span class="eyebrow">ESP32 #2</span><h2>16-Channel Relay Board</h2></div><span class="page-status">Live controls</span></div>
+      <p class="muted"><strong>ON</strong> stays on until an OFF, emergency-stop, or reboot command. <strong>Pulse</strong> is a temporary test and turns off automatically.</p>
+      <div class="row">
+        <button id="r16-all-off" class="danger">All OFF</button>
+        <button id="r16-all-on" class="primary">All ON (confirm)</button>
+        <button id="r16-test-seq">Sequential Test</button>
+        <button id="r16-emergency" class="emergency">EMERGENCY STOP</button>
+        <label>Test duration (ms) <input type="number" id="r16-test-dur" min="50" max="5000" value="300" /></label>
+        <label>Gap (ms) <input type="number" id="r16-test-gap" min="20" max="2000" value="120" /></label>
+      </div>
+      <div id="r16-grid" class="relay-grid"></div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- RELAY 8+4 PANEL                                                -->
+    <!-- ============================================================== -->
+    <section class="panel" id="tab-relay84">
+      <div class="page-heading"><div><span class="eyebrow">ESP32 #3</span><h2>8-Channel + 4-Channel Relay Board</h2></div><span class="page-status">12 channels</span></div>
+      <p class="muted"><strong>ON</strong> stays on until an OFF, emergency-stop, or reboot command. <strong>Pulse</strong> is a temporary test and turns off automatically.</p>
+      <div class="row">
+        <button id="r84-board8-off" class="danger">8-CH Board OFF</button>
+        <button id="r84-board4-off" class="danger">4-CH Board OFF</button>
+        <button id="r84-all-off" class="danger">All OFF</button>
+        <button id="r84-emergency" class="emergency">EMERGENCY STOP</button>
+      </div>
+      <h3 style="margin-top:.8rem;">8-Channel Module</h3>
+      <div id="r84-grid-8" class="relay-grid"></div>
+      <h3 style="margin-top:.8rem;">4-Channel Module</h3>
+      <div id="r84-grid-4" class="relay-grid"></div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- EXTRAS PANEL                                                   -->
+    <!-- ============================================================== -->
+    <section class="panel" id="tab-extras">
+      <div class="page-heading"><div><span class="eyebrow">ESP32 #4</span><h2>Extras &amp; Motion Controls</h2></div><span class="page-status" id="extras-page-status">Waiting for device</span></div>
+
+      <div class="sub-panel">
+        <h3>Camera Servos</h3>
+        <div class="grid-2">
+          <fieldset class="servo-fieldset" data-servo-gauge="pan">
+            <legend>Pan</legend>
+            <div class="servo-dial" aria-hidden="true"><i></i><strong id="pan-dial-value">135°</strong><small>0° — 270°</small></div>
+            <label>Angle <input type="range" id="pan-angle" min="0" max="270" value="135"><span id="pan-angle-v">135</span></label>
+            <label>Min   <input type="number" id="pan-min"  min="0" max="270" value="0"></label>
+            <label>Center<input type="number" id="pan-center" min="0" max="270" value="135"></label>
+            <label>Max   <input type="number" id="pan-max"  min="0" max="270" value="270"></label>
+            <div class="row">
+              <button id="pan-center-btn">Move to center</button>
+              <button id="pan-sweep">Sweep</button>
+              <button id="pan-save">Save cal</button>
+            </div>
+          </fieldset>
+          <fieldset class="servo-fieldset" data-servo-gauge="tilt">
+            <legend>Tilt</legend>
+            <div class="servo-dial" aria-hidden="true"><i></i><strong id="tilt-dial-value">135°</strong><small>0° — 270°</small></div>
+            <label>Angle <input type="range" id="tilt-angle" min="0" max="270" value="135"><span id="tilt-angle-v">135</span></label>
+            <label>Min   <input type="number" id="tilt-min"  min="0" max="270" value="0"></label>
+            <label>Center<input type="number" id="tilt-center" min="0" max="270" value="135"></label>
+            <label>Max   <input type="number" id="tilt-max"  min="0" max="270" value="270"></label>
+            <div class="row">
+              <button id="tilt-center-btn">Move to center</button>
+              <button id="tilt-sweep">Sweep</button>
+              <button id="tilt-save">Save cal</button>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+
+      <div class="sub-panel">
+        <h3>Buzzer</h3>
+        <div class="row">
+          <button id="buzzer-on">ON</button>
+          <button id="buzzer-off" class="danger">OFF</button>
+          <label>Duration (ms) <input type="number" id="buzzer-dur" min="0" max="10000" value="500"></label>
+          <button id="buzzer-pattern">Alert pattern</button>
+        </div>
+      </div>
+
+      <div class="sub-panel">
+        <h3>Alert Light</h3>
+        <div class="row">
+          <button id="red-on">Red ON</button>
+          <button id="red-off" class="danger">Red OFF</button>
+          <button id="red-blink">Blink test</button>
+          <label>Red interval (ms) <input type="number" id="red-interval" min="50" max="5000" value="500"></label>
+        </div>
+        <div class="row">
+          <button id="green-on">Green ON</button>
+          <button id="green-off" class="danger">Green OFF</button>
+          <button id="green-blink">Blink test</button>
+          <label>Green interval (ms) <input type="number" id="green-interval" min="50" max="5000" value="500"></label>
+        </div>
+      </div>
+
+      <div class="sub-panel">
+        <h3>Stepper Motor (TB6600)</h3>
+        <div class="grid-2">
+          <label>Direction
+            <select id="step-dir">
+              <option value="cw">Clockwise</option>
+              <option value="ccw">Counter-Clockwise</option>
+            </select>
+          </label>
+          <label>Microstepping
+            <select id="step-ms">
+              <option>1</option><option>2</option><option>4</option><option>8</option>
+              <option>16</option><option selected>32</option>
+            </select>
+          </label>
+          <label>Steps <input type="number" id="step-steps" min="1" max="200000" value="200"></label>
+          <label>Speed (Hz) <input type="number" id="step-speed" min="1" max="20000" value="1000"></label>
+          <label>Acceleration (Hz) <input type="number" id="step-accel" min="1" max="20000" value="1000"></label>
+        </div>
+        <div class="row">
+          <button id="step-enable">Enable driver</button>
+          <button id="step-disable" class="danger">Disable driver</button>
+          <button id="step-move" class="primary">Move</button>
+          <button id="step-stop" class="danger">STOP</button>
+          <button id="step-cal">Calibration move</button>
+          <button id="step-reset">Reset position to 0</button>
+          <button id="extras-emergency" class="emergency">EMERGENCY STOP</button>
+        </div>
+        <p>Current position (steps from zero): <strong id="step-pos">0</strong></p>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- LOGS PANEL                                                     -->
+    <!-- ============================================================== -->
+    <section class="panel" id="tab-logs">
+      <div class="page-heading"><div><span class="eyebrow">System activity</span><h2>Logs</h2></div><span class="page-status" id="log-count">0 events</span></div>
+      <div class="log-toolbar">
+        <button id="log-clear">Clear</button>
+        <button id="log-download">Download</button>
+        <label class="inline-check"><input type="checkbox" id="log-pause"> Pause auto-scroll</label>
+        <label>Search <input type="search" id="log-search" placeholder="Search messages"></label>
+        <label>ESP32 source <select id="log-board-filter"><option value="all">All sources</option><option value="esp1">ESP32 #1</option><option value="esp2">ESP32 #2</option><option value="esp3">ESP32 #3</option><option value="esp4">ESP32 #4</option><option value="system">System</option></select></label>
+        <label>Event type <select id="log-type-filter"><option value="all">All events</option><option value="connection">Connection</option><option value="success">Success</option><option value="warning">Warning</option><option value="error">Error</option><option value="system">System</option></select></label>
+      </div>
+      <pre id="log-view"></pre>
+    </section>
+  </main>
+
+  <script src="app.js?v=20260718"></script>
+  <script src="dashboard.js?v=20260718"></script>
+  <script src="autoconnect.js?v=20260718"></script>
+  <script src="ui.js?v=20260718"></script>
+</body>
+</html>
